@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/indexing-agent",
-      "schedule": "15 * * * *"
+      "schedule": "0 9 * * *"
     }
   ]
 }
