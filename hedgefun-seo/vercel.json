@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/indexing-agent",
-      "schedule": "15 * * * *"
-    }
-  ]
-}
