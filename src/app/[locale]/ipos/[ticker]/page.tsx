@@ -4,7 +4,7 @@ import { setRequestLocale } from "next-intl/server";
 import { createServerClient } from "@/lib/supabase";
 import type { TickerRow } from "@/types";
 
-const BASE_URL = "https://hedgefun.fun";
+const BASE_URL = "https://seo.hedgefun.fun";
 
 export const revalidate = 86400;
 export const dynamicParams = true;

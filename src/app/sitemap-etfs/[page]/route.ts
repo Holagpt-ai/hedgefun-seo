@@ -1,7 +1,7 @@
 import { createServerClient } from "@/lib/supabase";
 import { NextRequest } from "next/server";
 
-const BASE_URL = "https://hedgefun.fun";
+const BASE_URL = "https://seo.hedgefun.fun";
 const PAGE_SIZE = 1000;
 
 export async function GET(

@@ -1,4 +1,4 @@
-const BASE_URL = "https://hedgefun.fun";
+const BASE_URL = "https://seo.hedgefun.fun";
 
 const STATIC_PAGES = [
   { path: "/", priority: 1.0, changefreq: "daily" },

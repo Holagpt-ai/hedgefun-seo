@@ -5,5 +5,5 @@ Disallow: /api/
 Disallow: /_next/
 Disallow: /admin/
 
-Sitemap: https://hedgefun.fun/sitemap.xml
-Sitemap: https://hedgefun.fun/sitemap-index
+Sitemap: https://seo.hedgefun.fun/sitemap.xml
+Sitemap: https://seo.hedgefun.fun/sitemap-index

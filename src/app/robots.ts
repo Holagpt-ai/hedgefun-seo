@@ -10,8 +10,8 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: [
-      "https://hedgefun.fun/sitemap.xml",
-      "https://hedgefun.fun/sitemap-index",
+      "https://seo.hedgefun.fun/sitemap.xml",
+      "https://seo.hedgefun.fun/sitemap-index",
     ],
   };
 }

@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 
-const BASE_URL = "https://hedgefun.fun";
+const BASE_URL = "https://seo.hedgefun.fun";
 
 export const revalidate = 86400;
 
