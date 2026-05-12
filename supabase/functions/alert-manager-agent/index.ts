@@ -1,4 +1,4 @@
-typescriptimport { createSeoClient, logRun, jsonResponse, errorResponse } from "../_shared/base.ts";
+import { createSeoClient, logRun, jsonResponse, errorResponse } from "../_shared/base.ts";
 
 Deno.serve(async (req) => {
   try {

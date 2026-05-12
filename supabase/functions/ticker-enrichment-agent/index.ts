@@ -1,4 +1,4 @@
-typescriptimport { createSeoClient, createSourceClient, polygonGet, logRun, jsonResponse, errorResponse } from "../_shared/base.ts";
+import { createSeoClient, createSourceClient, polygonGet, logRun, jsonResponse, errorResponse } from "../_shared/base.ts";
 import type { PolygonTickerDetail } from "../_shared/types.ts";
 
 const BATCH_SIZE = 200;

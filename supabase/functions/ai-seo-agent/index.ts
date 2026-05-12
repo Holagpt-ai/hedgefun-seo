@@ -1,4 +1,4 @@
-typescriptimport { createSeoClient, logRun, jsonResponse, errorResponse } from "../_shared/base.ts";
+import { createSeoClient, logRun, jsonResponse, errorResponse } from "../_shared/base.ts";
 
 const BATCH_SIZE = 50;
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";

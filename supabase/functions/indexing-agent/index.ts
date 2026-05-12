@@ -1,4 +1,4 @@
-typescriptimport { createSeoClient, logRun, jsonResponse, errorResponse } from "../_shared/base.ts";
+import { createSeoClient, logRun, jsonResponse, errorResponse } from "../_shared/base.ts";
 
 const BATCH_SIZE = 100;
 const BASE_URL = "https://seo.hedgefun.fun";
