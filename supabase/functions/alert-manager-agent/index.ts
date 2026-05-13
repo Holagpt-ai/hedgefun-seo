@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
 
     const { data: logs, error: fetchError } = await seo
       .from("agent_logs")
-      .select("agent_name, status, summary, run_at")
+      .select("agent_name, status, metadata, run_at")
       .gte("run_at", since.toISOString())
       .order("run_at", { ascending: false });
 

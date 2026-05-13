@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
     // Fetch unenriched tickers from source Supabase ordered by market cap desc, stocks first
     const { data: tickers, error: fetchError } = await source
       .from("ticker_search")
-      .select("ticker, type, market_cap")
+      .select("symbol, type, market_cap")
       .is("enriched_at", null)
       .order("type", { ascending: true }) // stocks before etf/ipo alphabetically — override below
       .order("market_cap", { ascending: false, nullsFirst: false })
@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
 
     for (const row of tickers) {
       try {
-        const data = await polygonGet(`/v3/reference/tickers/${row.ticker}`);
+        const data = await polygonGet(`/v3/reference/tickers/${row.symbol}`);
         const detail: PolygonTickerDetail = data.results;
 
         if (!detail) {
@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
         }
 
         const upsertPayload = {
-          ticker: row.ticker,
+          ticker: row.symbol,
           company_name: detail.name ?? null,
           type: mapType(detail.type ?? row.type),
           exchange: detail.primary_exchange ?? null,
@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
 
         if (upsertError) {
           errors++;
-          console.error(`Upsert error for ${row.ticker}:`, upsertError.message);
+          console.error(`Upsert error for ${row.symbol}:`, upsertError.message);
         } else {
           processed++;
         }
@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
 
       } catch (err) {
         errors++;
-        console.error(`Failed to enrich ${row.ticker}:`, err);
+        console.error(`Failed to enrich ${row.symbol}:`, err);
       }
     }
 
