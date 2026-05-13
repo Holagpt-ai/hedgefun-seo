@@ -31,7 +31,7 @@ export async function logRun(
   await seo.from("agent_logs").insert({
     agent_name: agent,
     status,
-    summary,
+    metadata: summary,
     run_at: new Date().toISOString(),
   });
 }
