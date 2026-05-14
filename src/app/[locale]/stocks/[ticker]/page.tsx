@@ -98,7 +98,7 @@ export default async function StockPage({
   if (!data) notFound();
 
   const name = data.company_name ?? ticker;
-  const liveUrl = `${BASE_URL}/stocks/${ticker}`;
+  const liveUrl = `https://hedgefun.fun/stocks/${ticker}`;
 
   // JSON-LD — FinancialInstrument + BreadcrumbList
   const jsonLd = data.schema_json ?? {
