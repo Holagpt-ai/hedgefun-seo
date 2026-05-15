@@ -24,16 +24,12 @@ Deno.serve(async (req) => {
 
         const payload = {
           slug,
-          title: article.title,
-          description: article.description ?? null,
-          content: null,
-          author: article.author ?? null,
+          title_en: article.title ?? null,
           source: article.publisher?.name ?? null,
+          source_url: article.article_url ?? null,
           image_url: article.image_url ?? null,
-          article_url: article.article_url,
-          tickers: article.tickers ?? [],
+          ticker: article.tickers?.[0] ?? null,
           published_at: article.published_utc ?? null,
-          updated_at: new Date().toISOString(),
         };
 
         const { error: upsertError } = await seo

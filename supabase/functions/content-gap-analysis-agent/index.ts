@@ -5,7 +5,6 @@ Deno.serve(async (req) => {
     const seo = createSeoClient();
     const source = createSourceClient();
 
-    // Fetch all tickers we currently have SEO pages for
     const { data: existingTickers, error: existingError } = await seo
       .from("seo_tickers")
       .select("ticker");
@@ -14,26 +13,22 @@ Deno.serve(async (req) => {
 
     const existingSet = new Set((existingTickers ?? []).map((r) => r.ticker));
 
-    // Fetch all tickers from source Supabase
     const { data: sourceTickers, error: sourceError } = await source
       .from("ticker_search")
-      .select("ticker, type, market_cap, name")
+      .select("symbol, type, market_cap, name")
       .order("market_cap", { ascending: false, nullsFirst: false })
       .limit(5000);
 
     if (sourceError) throw new Error(`Fetch source error: ${sourceError.message}`);
 
-    // Identify tickers in source but not in SEO layer
-    const gaps = (sourceTickers ?? []).filter((r) => !existingSet.has(r.ticker));
+    const gaps = (sourceTickers ?? []).filter((r) => !existingSet.has(r.symbol));
 
-    // Categorize gaps by type
     const stockGaps = gaps.filter((r) => r.type === "stock" || !r.type);
     const etfGaps = gaps.filter((r) => r.type === "etf");
     const ipoGaps = gaps.filter((r) => r.type === "ipo");
 
-    // Top 20 missing by market cap for priority enrichment
     const topMissing = gaps.slice(0, 20).map((r) => ({
-      ticker: r.ticker,
+      ticker: r.symbol,
       name: r.name,
       type: r.type,
       market_cap: r.market_cap,
@@ -50,7 +45,6 @@ Deno.serve(async (req) => {
       last_analyzed: new Date().toISOString(),
     };
 
-    // Write gap analysis to agent_knowledge for admin Reports tab
     await seo.from("agent_knowledge").upsert({
       agent_name: "content-gap-analysis-agent",
       knowledge_type: "gap_analysis",

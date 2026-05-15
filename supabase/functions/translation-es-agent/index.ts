@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
           processed++;
         }
 
-        await delay(500);
+        await delay(200);
 
       } catch (err) {
         errors++;
@@ -68,37 +68,18 @@ Deno.serve(async (req) => {
 });
 
 function buildPrompt(ticker: any): string {
-  return `You are a professional financial translator specializing in Spanish for Latin American and Spanish markets.
-
-Translate the following financial content from English to Spanish. The translation must be natural, professional, and appropriate for investors in Mexico, Colombia, and Spain.
+  return `You are a professional financial translator. Translate the following stock content from English to Spanish for investors in Mexico, Colombia, and Spain. Keep ticker symbols, company names, and "HedgeFun" untranslated. Meta title under 60 chars. Meta description under 155 chars. Return ONLY a JSON object, no preamble, no markdown: { "description_es": "...", "meta_title_es": "...", "meta_description_es": "..." }
 
 Ticker: ${ticker.ticker}
 Company: ${ticker.company_name ?? ticker.ticker}
 Sector: ${ticker.sector ?? "Unknown"}
-
 English Description: ${ticker.description_en ?? "No description available"}
 English Meta Title: ${ticker.meta_title_en ?? ""}
-English Meta Description: ${ticker.meta_description_en ?? ""}
-
-Rules:
-- Keep ticker symbols in uppercase and untranslated
-- Keep company names untranslated
-- Keep "HedgeFun" untranslated
-- Meta title must be under 60 characters
-- Meta description must be under 155 characters
-- Use natural financial Spanish, not literal word-for-word translation
-
-Return ONLY a JSON object with exactly these fields, no preamble, no markdown:
-{
-  "description_es": "Spanish translation of the full description",
-  "meta_title_es": "Spanish meta title under 60 characters",
-  "meta_description_es": "Spanish meta description under 155 characters"
-}`;
+English Meta Description: ${ticker.meta_description_en ?? ""}`;
 }
 
 async function callClaude(prompt: string): Promise<any> {
   const apiKey = Deno.env.get("ANTHROPIC_API_KEY")!;
-
   const res = await fetch(ANTHROPIC_API_URL, {
     method: "POST",
     headers: {
@@ -112,14 +93,12 @@ async function callClaude(prompt: string): Promise<any> {
       messages: [{ role: "user", content: prompt }],
     }),
   });
-
   if (!res.ok) throw new Error(`Claude API error: ${res.status}`);
-
   const data = await res.json();
   const text = data.content?.[0]?.text ?? "";
-
   try {
-    return JSON.parse(text);
+    const clean = text.replace(/```json\n?|```/g, "").trim();
+    return JSON.parse(clean);
   } catch {
     console.error("Failed to parse Claude response:", text);
     return null;
@@ -129,4 +108,3 @@ async function callClaude(prompt: string): Promise<any> {
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
