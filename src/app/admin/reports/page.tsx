@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase";
+ï»¿import { createServerClient } from "@/lib/supabase";
 
 export default async function ReportsPage() {
   const seo = createServerClient();
@@ -16,7 +16,7 @@ export default async function ReportsPage() {
     <div className="p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white">Reports</h1>
-        <p className="text-zinc-500 text-sm mt-1">Content gap analysis — latest run</p>
+        <p className="text-zinc-500 text-sm mt-1">Content gap analysis â€” latest run</p>
       </div>
 
       {!gap ? (
@@ -27,10 +27,10 @@ export default async function ReportsPage() {
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
             {[
-              { label: "Source tickers", value: gap.total_source_tickers ?? "—", color: "border-l-blue-500" },
-              { label: "SEO pages built", value: gap.total_seo_tickers ?? "—", color: "border-l-green-500" },
-              { label: "Coverage gaps", value: gap.total_gaps ?? "—", color: "border-l-red-500" },
-              { label: "Last analyzed", value: gap.last_analyzed ? new Date(gap.last_analyzed).toLocaleDateString() : "—", color: "border-l-zinc-500" },
+              { label: "Source tickers", value: gap.total_source_tickers ?? "â€”", color: "border-l-blue-500" },
+              { label: "SEO pages built", value: gap.total_seo_tickers ?? "â€”", color: "border-l-green-500" },
+              { label: "Coverage gaps", value: gap.total_gaps ?? "â€”", color: "border-l-red-500" },
+              { label: "Last analyzed", value: gap.last_analyzed ? new Date(gap.last_analyzed).toLocaleDateString() : "â€”", color: "border-l-zinc-500" },
             ].map((card) => (
               <div key={card.label} className={`bg-zinc-900 border border-zinc-800 rounded-lg p-5 border-l-4 ${card.color}`}>
                 <p className="text-3xl font-bold text-white">{card.value}</p>

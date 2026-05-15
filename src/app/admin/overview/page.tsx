@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase";
+ï»¿import { createServerClient } from "@/lib/supabase";
 
 const AGENTS = [
   "ticker-enrichment-agent","news-agent","seo-content-writer-agent",
@@ -59,7 +59,7 @@ export default async function OverviewPage() {
 
   const lastRun = logs?.[0]?.run_at
     ? new Date(logs[0].run_at).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })
-    : "—";
+    : "â€”";
 
   return (
     <div className="p-8">
@@ -99,10 +99,10 @@ export default async function OverviewPage() {
                   <td className="px-5 py-3">
                     {log ? <StatusPill status={log.status} /> : <span className="text-zinc-600 text-xs">no data</span>}
                   </td>
-                  <td className="px-5 py-3 text-right text-zinc-300">{meta?.processed ?? "—"}</td>
-                  <td className="px-5 py-3 text-right text-red-400">{meta?.errors ?? "—"}</td>
+                  <td className="px-5 py-3 text-right text-zinc-300">{meta?.processed ?? "â€”"}</td>
+                  <td className="px-5 py-3 text-right text-red-400">{meta?.errors ?? "â€”"}</td>
                   <td className="px-5 py-3 text-right text-zinc-500 text-xs">
-                    {log ? new Date(log.run_at).toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" }) : "—"}
+                    {log ? new Date(log.run_at).toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" }) : "â€”"}
                   </td>
                 </tr>
               );

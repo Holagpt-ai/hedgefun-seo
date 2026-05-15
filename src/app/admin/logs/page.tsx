@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase";
+ï»¿import { createServerClient } from "@/lib/supabase";
 
 function StatusPill({ status }: { status: string }) {
   const styles: Record<string, string> = {
@@ -48,10 +48,10 @@ export default async function LogsPage() {
                 <tr key={i} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
                   <td className="px-5 py-3 text-zinc-200 font-mono text-xs">{log.agent_name}</td>
                   <td className="px-5 py-3"><StatusPill status={log.status} /></td>
-                  <td className="px-5 py-3 text-right text-zinc-300">{meta?.processed ?? "—"}</td>
-                  <td className="px-5 py-3 text-right text-red-400">{meta?.errors ?? "—"}</td>
+                  <td className="px-5 py-3 text-right text-zinc-300">{meta?.processed ?? "â€”"}</td>
+                  <td className="px-5 py-3 text-right text-red-400">{meta?.errors ?? "â€”"}</td>
                   <td className="px-5 py-3 text-zinc-500 text-xs max-w-xs truncate">
-                    {log.error_message ?? (meta?.reason ? `Skipped: ${meta.reason}` : "—")}
+                    {log.error_message ?? (meta?.reason ? `Skipped: ${meta.reason}` : "â€”")}
                   </td>
                   <td className="px-5 py-3 text-right text-zinc-500 text-xs">
                     {new Date(log.run_at).toLocaleString("en-US", { dateStyle: "short", timeStyle: "short" })}
