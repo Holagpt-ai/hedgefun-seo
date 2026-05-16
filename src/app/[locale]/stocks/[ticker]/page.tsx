@@ -104,6 +104,17 @@ function resolveExchange(mic: string): string {
   return EXCHANGE_LABELS[mic] ?? mic;
 }
 
+function toTitleCase(str: string): string {
+  return str
+    .toLowerCase()
+    .split(/[\s\-&]+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+    .replace(/\bAnd\b/g, "and")
+    .replace(/\bOf\b/g, "of")
+    .replace(/\bThe\b/g, "the");
+}
+
 export default async function StockPage({
   params,
 }: {
@@ -231,8 +242,8 @@ export default async function StockPage({
               </div>
               {(data.sector || data.industry) && (
                 <p className="text-sm text-gray-500 mt-1">
-                  {data.sector ?? ""}
-                  {data.industry && data.industry !== data.sector ? ` · ${data.industry}` : ""}
+                  {toTitleCase(data.sector ?? "")}
+                  {data.industry && data.industry !== data.sector ? ` · ${toTitleCase(data.industry)}` : ""}
                 </p>
               )}
             </div>
@@ -303,13 +314,13 @@ export default async function StockPage({
               {data.industry && data.industry !== data.sector && (
                 <div>
                   <p className="text-xs text-gray-500 mb-0.5">{isEs ? "Industria" : "Industry"}</p>
-                  <p className="text-sm font-semibold text-gray-900">{data.industry}</p>
+                  <p className="text-sm font-semibold text-gray-900">{toTitleCase(data.industry)}</p>
                 </div>
               )}
               {data.sector && (
                 <div>
                   <p className="text-xs text-gray-500 mb-0.5">{isEs ? "Sector" : "Sector"}</p>
-                  <p className="text-sm font-semibold text-gray-900">{data.sector}</p>
+                  <p className="text-sm font-semibold text-gray-900">{toTitleCase(data.sector)}</p>
                 </div>
               )}
               {data.country && (
