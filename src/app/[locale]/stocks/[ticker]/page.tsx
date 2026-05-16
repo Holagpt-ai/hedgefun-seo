@@ -107,12 +107,13 @@ function resolveExchange(mic: string): string {
 function toTitleCase(str: string): string {
   return str
     .toLowerCase()
-    .split(/[\s\-&]+/)
+    .split(/\s+/)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ")
     .replace(/\bAnd\b/g, "and")
     .replace(/\bOf\b/g, "of")
-    .replace(/\bThe\b/g, "the");
+    .replace(/\bThe\b/g, "the")
+    .replace(/&/g, "&");
 }
 
 export default async function StockPage({
