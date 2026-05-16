@@ -22,6 +22,10 @@ export type TickerRow = {
   meta_description_en: string | null;
   meta_description_es: string | null;
   schema_json: Record<string, unknown> | null;
+  entity_data: Record<string, unknown> | null;
+  llm_optimized_summary: string | null;
+  geo_variants: Record<string, unknown> | null;
+  serp_data: Record<string, unknown> | null;
   indexed_at: string | null;
   enriched_at: string | null;
   created_at: string;
