@@ -429,10 +429,10 @@ export default async function StockPage({
                 <a href="https://hedgefun.fun/stocks" className="text-sm text-slate-400 hover:text-white transition-colors">
                   {isEs ? "Acciones" : "Stocks"}
                 </a>
-                <a href="https://hedgefun.fun/etf" className="text-sm text-slate-400 hover:text-white transition-colors">
+                <a href="https://hedgefun.fun/etfs" className="text-sm text-slate-400 hover:text-white transition-colors">
                   ETFs
                 </a>
-                <a href="https://hedgefun.fun/ipo" className="text-sm text-slate-400 hover:text-white transition-colors">
+                <a href="https://hedgefun.fun/ipos" className="text-sm text-slate-400 hover:text-white transition-colors">
                   IPOs
                 </a>
                 <a href="https://hedgefun.fun/news" className="text-sm text-slate-400 hover:text-white transition-colors">
