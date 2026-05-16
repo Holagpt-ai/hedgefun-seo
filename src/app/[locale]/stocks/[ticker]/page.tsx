@@ -175,6 +175,7 @@ export default async function StockPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <div className="bg-gray-50">
 
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -204,7 +205,7 @@ export default async function StockPage({
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6">
+      <main className="max-w-5xl mx-auto px-4 py-6 bg-gray-50 min-h-screen">
 
         <nav className="text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
           <a href={`${BASE_URL}/stocks`} className="hover:text-blue-700 transition-colors">
@@ -214,7 +215,7 @@ export default async function StockPage({
           <span className="text-gray-900 font-medium">{ticker}</span>
         </nav>
 
-        <div className="bg-white border border-gray-100 rounded-xl p-5 mb-4">
+        <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5 mb-4">
           <div className="flex items-start justify-between flex-wrap gap-3">
             <div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -249,7 +250,7 @@ export default async function StockPage({
           />
         </div>
 
-        <div className="bg-white border border-gray-100 rounded-xl p-5 mb-4">
+        <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5 mb-4">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4">
             {data.market_cap && (
               <div>
@@ -291,7 +292,7 @@ export default async function StockPage({
         </div>
 
         {(isEs ? data.description_es : data.description_en) && (
-          <div className="bg-white border border-gray-100 rounded-xl p-5 mb-4">
+          <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5 mb-4">
             <h2 className="text-base font-semibold text-gray-900 mb-3">
               {isEs ? `Acerca de ${name}` : `About ${name}`}
             </h2>
@@ -299,7 +300,7 @@ export default async function StockPage({
               {isEs ? data.description_es : data.description_en}
             </p>
             <div className="grid grid-cols-2 gap-x-6 gap-y-3 border-t border-gray-100 pt-4">
-              {data.industry && (
+              {data.industry && data.industry !== data.sector && (
                 <div>
                   <p className="text-xs text-gray-500 mb-0.5">{isEs ? "Industria" : "Industry"}</p>
                   <p className="text-sm font-semibold text-gray-900">{data.industry}</p>
@@ -469,6 +470,7 @@ export default async function StockPage({
           </div>
         </div>
       </footer>
+      </div>
     </>
   );
 }
