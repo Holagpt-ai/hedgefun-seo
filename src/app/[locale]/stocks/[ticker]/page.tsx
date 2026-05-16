@@ -445,10 +445,10 @@ export default async function StockPage({
                 {isEs ? "Listas" : "Stock lists"}
               </p>
               <div className="flex flex-col gap-2">
-                <a href={`${BASE_URL}/stocks/lists/sp500`} className="text-sm text-slate-400 hover:text-white transition-colors">S&amp;P 500</a>
-                <a href={`${BASE_URL}/stocks/lists/nasdaq100`} className="text-sm text-slate-400 hover:text-white transition-colors">Nasdaq 100</a>
-                <a href={`${BASE_URL}/stocks/lists/dowjones`} className="text-sm text-slate-400 hover:text-white transition-colors">Dow Jones</a>
-                <a href={`${BASE_URL}/stocks/lists/faang`} className="text-sm text-slate-400 hover:text-white transition-colors">FAANG</a>
+                <a href="https://seo.hedgefun.fun/en/stocks/lists/sp500" className="text-sm text-slate-400 hover:text-white transition-colors">S&amp;P 500</a>
+                <a href="https://seo.hedgefun.fun/en/stocks/lists/nasdaq100" className="text-sm text-slate-400 hover:text-white transition-colors">Nasdaq 100</a>
+                <a href="https://seo.hedgefun.fun/en/stocks/lists/dowjones" className="text-sm text-slate-400 hover:text-white transition-colors">Dow Jones</a>
+                <a href="https://seo.hedgefun.fun/en/stocks/lists/faang" className="text-sm text-slate-400 hover:text-white transition-colors">FAANG</a>
               </div>
             </div>
             <div>
@@ -465,7 +465,7 @@ export default async function StockPage({
                 <a href="https://hedgefun.fun/terms" className="text-sm text-slate-400 hover:text-white transition-colors">
                   {isEs ? "Términos" : "Terms of use"}
                 </a>
-                <a href={`${BASE_URL}/sitemap.xml`} className="text-sm text-slate-400 hover:text-white transition-colors">
+                <a href="https://seo.hedgefun.fun/sitemap.xml" className="text-sm text-slate-400 hover:text-white transition-colors">
                   Sitemap
                 </a>
               </div>
