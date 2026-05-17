@@ -707,12 +707,16 @@ function resolveExchange(mic: string): string {
 function toTitleCase(str: string): string {
   return str
     .toLowerCase()
+    .replace(/[-,]+/g, " ")
     .split(/\s+/)
+    .filter(Boolean)
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ")
     .replace(/\bAnd\b/g, "and")
     .replace(/\bOf\b/g, "of")
     .replace(/\bThe\b/g, "the")
+    .replace(/\bNo\b/g, "no")
+    .replace(/\bNec\b/g, "nec")
     .replace(/&/g, "&");
 }
 
