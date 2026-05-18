@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
       .from("ticker_search")
       .select("symbol, type, market_cap")
       .order("market_cap", { ascending: false, nullsFirst: false })
-      .limit(5000);
+      .limit(15000);
 
     if (fetchError) throw new Error(`Source fetch error: ${fetchError.message}`);
     if (!allTickers || allTickers.length === 0) {
