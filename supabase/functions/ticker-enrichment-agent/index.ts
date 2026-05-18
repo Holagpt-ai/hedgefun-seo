@@ -2,7 +2,6 @@ import { createSeoClient, createSourceClient, polygonGet, logRun, jsonResponse, 
 import type { PolygonTickerDetail } from "../_shared/types.ts";
 
 const BATCH_SIZE = 150;
-const PAGE_SIZE = 1000;
 
 Deno.serve(async (req) => {
   try {
@@ -22,20 +21,15 @@ Deno.serve(async (req) => {
       return jsonResponse({ status: "skipped", processed: 0 });
     }
 
-    // Paginate through all existing seo_tickers to build complete exclusion set
-    const existingSet = new Set<string>();
-    let page = 0;
-    while (true) {
-      const { data: existing, error: existingError } = await seo
-        .from("seo_tickers")
-        .select("ticker")
-        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
-      if (existingError) throw new Error(`Existing fetch error: ${existingError.message}`);
-      if (!existing || existing.length === 0) break;
-      existing.forEach((r: any) => existingSet.add(r.ticker));
-      if (existing.length < PAGE_SIZE) break;
-      page++;
-    }
+    // Fetch all existing tickers from seo_tickers with a high limit
+    const { data: existing, error: existingError } = await seo
+      .from("seo_tickers")
+      .select("ticker")
+      .limit(20000);
+
+    if (existingError) throw new Error(`Existing fetch error: ${existingError.message}`);
+
+    const existingSet = new Set<string>((existing ?? []).map((r: any) => r.ticker));
 
     // Filter out already-enriched tickers
     const unenriched = allTickers.filter((r: any) => !existingSet.has(r.symbol));
@@ -61,7 +55,6 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // Derive sector from sic_code first, fall back to sic_description
         const sector = detail.sic_code
           ? sicCodeToSector(detail.sic_code)
           : detail.sic_description
@@ -165,40 +158,4 @@ function sicCodeToSector(sicCode: string): string | null {
   if (sic >= 6500 && sic <= 6599) return "Real Estate";
   if (sic >= 6600 && sic <= 6799) return "Financials";
   if (sic >= 7000 && sic <= 7299) return "Consumer Discretionary";
-  if (sic >= 7300 && sic <= 7399) return "Technology";
-  if (sic >= 7400 && sic <= 7999) return "Consumer Discretionary";
-  if (sic >= 8000 && sic <= 8099) return "Healthcare";
-  if (sic >= 8100 && sic <= 8999) return "Industrials";
-  if (sic >= 9000 && sic <= 9999) return "Industrials";
-  return null;
-}
-
-function sicDescriptionToSector(desc: string): string | null {
-  if (!desc) return null;
-  const d = desc.toUpperCase();
-  if (d.includes("PHARMACEUTICAL") || d.includes("MEDICAL") || d.includes("HOSPITAL") ||
-      d.includes("HEALTH") || d.includes("SURGICAL") || d.includes("BIOLOGICAL") ||
-      d.includes("DIAGNOSTIC") || d.includes("ORTHOPEDIC") || d.includes("ELECTROMEDICAL")) return "Healthcare";
-  if (d.includes("SOFTWARE") || d.includes("SEMICONDUCTOR") || d.includes("COMPUTER") ||
-      d.includes("DATA PROCESSING") || d.includes("OPTICAL INSTRUMENTS") ||
-      d.includes("MEASURING") || d.includes("ELECTRONIC COMPONENTS")) return "Technology";
-  if (d.includes("BANK") || d.includes("INSURANCE") || d.includes("BROKER") ||
-      d.includes("INVESTMENT") || d.includes("FINANCE") || d.includes("CREDIT") ||
-      d.includes("SECURITY BROKERS") || d.includes("SURETY")) return "Financials";
-  if (d.includes("PETROLEUM") || d.includes("OIL") || d.includes("GAS FIELD") ||
-      d.includes("CRUDE") || d.includes("DRILLING") || d.includes("NATURAL GAS TRANSMISSION")) return "Energy";
-  if (d.includes("RAILROAD") || d.includes("AIRCRAFT") || d.includes("TRUCKING") ||
-      d.includes("TRANSPORTATION") || d.includes("COURIER") || d.includes("MACHINERY") ||
-      d.includes("ENGINES") || d.includes("REFUSE") || d.includes("GUIDED MISSILES")) return "Industrials";
-  if (d.includes("REAL ESTATE") || d.includes("REIT")) return "Real Estate";
-  if (d.includes("ELECTRIC SERVICES") || d.includes("WATER SUPPLY") || d.includes("GAS DISTRIBUTION")) return "Utilities";
-  if (d.includes("TELEPHONE") || d.includes("CABLE") || d.includes("RADIOTELEPHONE") ||
-      d.includes("BROADCASTING")) return "Communication Services";
-  if (d.includes("RETAIL") || d.includes("HOTEL") || d.includes("MOTEL") ||
-      d.includes("AMUSEMENT") || d.includes("EATING")) return "Consumer Discretionary";
-  if (d.includes("TOBACCO") || d.includes("FOOD") || d.includes("GROCERY") ||
-      d.includes("BEVERAGE") || d.includes("CIGARETTE") || d.includes("SOFT DRINKS")) return "Consumer Staples";
-  if (d.includes("MINING") || d.includes("METALS") || d.includes("CHEMICALS") ||
-      d.includes("GOLD") || d.includes("SILVER") || d.includes("WIRE") || d.includes("SOAP")) return "Materials";
-  return null;
-}
+  if (sic >= 7300 && sic
