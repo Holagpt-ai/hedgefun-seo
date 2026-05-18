@@ -1,7 +1,7 @@
 import { createSeoClient, createSourceClient, polygonGet, logRun, jsonResponse, errorResponse } from "../_shared/base.ts";
 import type { PolygonTickerDetail } from "../_shared/types.ts";
 
-const BATCH_SIZE = 500;
+const BATCH_SIZE = 150;
 
 Deno.serve(async (req) => {
   try {
