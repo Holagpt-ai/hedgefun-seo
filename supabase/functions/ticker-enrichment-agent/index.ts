@@ -2,22 +2,14 @@ import { createSeoClient, createSourceClient, polygonGet, logRun, jsonResponse, 
 import type { PolygonTickerDetail } from "../_shared/types.ts";
 
 const BATCH_SIZE = 150;
+const PAGE_SIZE = 1000;
 
 Deno.serve(async (req) => {
   try {
     const seo = createSeoClient();
     const source = createSourceClient();
 
-    // Get all tickers already in seo_tickers so we can exclude them
-    const { data: existing, error: existingError } = await seo
-      .from("seo_tickers")
-      .select("ticker");
-
-    if (existingError) throw new Error(`Existing fetch error: ${existingError.message}`);
-
-    const existingSet = new Set((existing ?? []).map((r: any) => r.ticker));
-
-    // Fetch from ticker_search ordered by market cap, skip already enriched
+    // Fetch all tickers from source ordered by market cap
     const { data: allTickers, error: fetchError } = await source
       .from("ticker_search")
       .select("symbol, type, market_cap")
@@ -28,6 +20,21 @@ Deno.serve(async (req) => {
     if (!allTickers || allTickers.length === 0) {
       await logRun(seo, "ticker-enrichment-agent", "skipped", { reason: "no tickers found in source" });
       return jsonResponse({ status: "skipped", processed: 0 });
+    }
+
+    // Paginate through all existing seo_tickers to build complete exclusion set
+    const existingSet = new Set<string>();
+    let page = 0;
+    while (true) {
+      const { data: existing, error: existingError } = await seo
+        .from("seo_tickers")
+        .select("ticker")
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+      if (existingError) throw new Error(`Existing fetch error: ${existingError.message}`);
+      if (!existing || existing.length === 0) break;
+      existing.forEach((r: any) => existingSet.add(r.ticker));
+      if (existing.length < PAGE_SIZE) break;
+      page++;
     }
 
     // Filter out already-enriched tickers
@@ -173,9 +180,8 @@ function sicDescriptionToSector(desc: string): string | null {
       d.includes("HEALTH") || d.includes("SURGICAL") || d.includes("BIOLOGICAL") ||
       d.includes("DIAGNOSTIC") || d.includes("ORTHOPEDIC") || d.includes("ELECTROMEDICAL")) return "Healthcare";
   if (d.includes("SOFTWARE") || d.includes("SEMICONDUCTOR") || d.includes("COMPUTER") ||
-      d.includes("ELECTRONIC COMPUTERS") || d.includes("DATA PROCESSING") ||
-      d.includes("OPTICAL INSTRUMENTS") || d.includes("MEASURING") ||
-      d.includes("ELECTRONIC COMPONENTS")) return "Technology";
+      d.includes("DATA PROCESSING") || d.includes("OPTICAL INSTRUMENTS") ||
+      d.includes("MEASURING") || d.includes("ELECTRONIC COMPONENTS")) return "Technology";
   if (d.includes("BANK") || d.includes("INSURANCE") || d.includes("BROKER") ||
       d.includes("INVESTMENT") || d.includes("FINANCE") || d.includes("CREDIT") ||
       d.includes("SECURITY BROKERS") || d.includes("SURETY")) return "Financials";
