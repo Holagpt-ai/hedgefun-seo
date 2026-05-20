@@ -7,7 +7,6 @@ Deno.serve(async (req) => {
   try {
     const seo = createSeoClient();
 
-    // Fetch tickers that have been enriched but not yet LLM-optimized
     const { data: tickers, error: fetchError } = await seo
       .from("seo_tickers")
       .select("id, ticker, company_name, description_en, sector, industry, entity_data")
@@ -86,7 +85,7 @@ Description: ${ticker.description_en ?? "No description available"}
 
 Return ONLY a JSON object with exactly this field, no preamble, no markdown:
 {
-  "summary": "A 100-150 word structured summary written in clear declarative sentences. Format: '[Company] ([TICKER]) is a [sector] company listed on [exchange]. Founded in [year], the company [what it does]. Its primary competitors include [competitors]. As of the latest data, the company employs approximately [employees] people and is headquartered in [location]. Investors can find real-time price data, financials, and analysis for [TICKER] on HedgeFun at hedgefun.fun/stocks/[TICKER].'"
+  "summary": "A 100-150 word structured summary written in clear declarative sentences."
 }`;
 }
 
@@ -101,7 +100,7 @@ async function callClaude(prompt: string): Promise<any> {
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
+      model: "claude-haiku-4-5",
       max_tokens: 1024,
       messages: [{ role: "user", content: prompt }],
     }),

@@ -1,6 +1,6 @@
 import { createSeoClient, logRun, jsonResponse, errorResponse } from "../_shared/base.ts";
 
-const BATCH_SIZE = 100;
+const BATCH_SIZE = 50;
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 
 Deno.serve(async (req) => {
@@ -83,14 +83,14 @@ Rules:
 - Meta title must be under 60 characters
 - Meta description must be under 155 characters
 - Include the ticker symbol in both
-- Include "HedgeFun" in the title
+- Include HedgeFun in the title
 - Use action-oriented language in the description
 - Do not use quotes inside the strings
 
 Return ONLY a JSON object with exactly these fields, no preamble, no markdown:
 {
   "meta_title_en": "Company Name (TICKER) ${typeLabel} Price & Analysis | HedgeFun",
-  "meta_description_en": "Track TICKER ${typeLabel} price, financials, and analysis. Real-time data and institutional-grade insights on HedgeFun."
+  "meta_description_en": "Track TICKER ${typeLabel} price, financials, and analysis on HedgeFun."
 }`;
 }
 
@@ -105,7 +105,7 @@ async function callClaude(prompt: string): Promise<any> {
       "anthropic-version": "2023-06-01",
     },
     body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
+      model: "claude-haiku-4-5",
       max_tokens: 512,
       messages: [{ role: "user", content: prompt }],
     }),
