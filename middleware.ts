@@ -42,5 +42,8 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/((?!api|_next|_vercel|.*\\..*).*)"],
+  matcher: [
+    "/admin/:path*",
+    "/((?!api|_next|_vercel|sitemap|robots|.*\\..*).*)",
+  ],
 };
