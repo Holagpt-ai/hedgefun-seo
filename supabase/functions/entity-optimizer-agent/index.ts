@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
       .from("seo_tickers")
       .select("id, ticker, company_name, description_en, sector, industry, exchange, entity_data")
       .not("enriched_at", "is", null)
-      .filter("entity_data->ceo", "is", null)
+      .filterRaw("entity_data->>'ceo' IS NULL")
       .limit(BATCH_SIZE);
 
     if (fetchError) throw new Error(`Fetch error: ${fetchError.message}`);
@@ -122,7 +122,8 @@ async function callClaude(prompt: string): Promise<any> {
   const text = data.content?.[0]?.text ?? "";
 
   try {
-    return JSON.parse(text);
+    const clean = text.replace(/```json\n?|```/g, "").trim();
+    return JSON.parse(clean);
   } catch {
     console.error("Failed to parse Claude response:", text);
     return null;

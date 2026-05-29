@@ -102,6 +102,7 @@ export interface PolygonTickerDetail {
   market_cap: number | null;
   primary_exchange: string | null;
   type: string | null;
+  sic_code: string | null;
   sic_description: string | null;
   total_employees: number | null;
   list_date: string | null;

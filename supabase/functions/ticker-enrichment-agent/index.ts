@@ -1,5 +1,4 @@
 ﻿import { createSeoClient, createSourceClient, polygonGet, logRun, jsonResponse, errorResponse } from "../_shared/base.ts";
-import type { PolygonTickerDetail } from "../_shared/types.ts";
 
 const BATCH_SIZE = 150;
 
@@ -8,14 +7,29 @@ Deno.serve(async (req) => {
     const seo = createSeoClient();
     const source = createSourceClient();
 
-    const { data: allTickers, error: fetchError } = await source
-      .from("ticker_search")
-      .select("symbol, type, market_cap")
-      .order("market_cap", { ascending: false, nullsFirst: false })
-      .limit(15000);
+    let typeFilter: string | null = null;
+    try {
+      const body = await req.json();
+      if (body?.type) typeFilter = body.type;
+    } catch (_) {}
 
-    if (fetchError) throw new Error(`Source fetch error: ${fetchError.message}`);
-    if (!allTickers || allTickers.length === 0) {
+    let sourceQuery = source
+      .from("ticker_search")
+      .select("symbol, type, market_cap");
+
+    if (typeFilter) {
+      sourceQuery = sourceQuery.eq("type", typeFilter);
+    } else {
+      sourceQuery = sourceQuery.order("market_cap", { ascending: false, nullsFirst: false });
+    }
+
+    sourceQuery = sourceQuery.limit(15000);
+
+    const { data: allTickers, error: fetchError } = await sourceQuery;
+
+    console.log("Total source tickers fetched:", allTickers.length);
+
+    if (allTickers.length === 0) {
       await logRun(seo, "ticker-enrichment-agent", "skipped", { reason: "no tickers found in source" });
       return jsonResponse({ status: "skipped", processed: 0 });
     }
@@ -29,13 +43,19 @@ Deno.serve(async (req) => {
 
     const existingSet = new Set((existing ?? []).map((r) => r.ticker));
     const unenriched = allTickers.filter((r) => !existingSet.has(r.symbol));
+    // Prioritize tickers with valid market cap; push market_cap = -1 to end of queue
+    const validUnenriched = unenriched.filter((r) => r.market_cap !== -1);
+    const invalidUnenriched = unenriched.filter((r) => r.market_cap === -1);
+    const orderedUnenriched = [...validUnenriched, ...invalidUnenriched];
+
+    console.log("Existing:", existingSet.size, "Unenriched:", unenriched.length);
 
     if (unenriched.length === 0) {
       await logRun(seo, "ticker-enrichment-agent", "skipped", { reason: "all tickers already enriched" });
       return jsonResponse({ status: "skipped", processed: 0, message: "all tickers already enriched" });
     }
 
-    const batch = unenriched.slice(0, BATCH_SIZE);
+    const batch = orderedUnenriched.slice(0, BATCH_SIZE);
     let processed = 0;
     let errors = 0;
 
@@ -43,7 +63,20 @@ Deno.serve(async (req) => {
       try {
         const data = await polygonGet(`/v3/reference/tickers/${row.symbol}`);
         const detail = data.results;
-        if (!detail) { errors++; continue; }
+        if (!detail) {
+          // Write a minimal tombstone so this ticker exits the unenriched queue permanently
+          await seo.from("seo_tickers").upsert(
+            {
+              ticker: row.symbol,
+              type: mapType(row.type),
+              enriched_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            { onConflict: "ticker" }
+          );
+          errors++;
+          continue;
+        }
 
         const sector = detail.sic_code
           ? sicCodeToSector(detail.sic_code)
@@ -62,16 +95,13 @@ Deno.serve(async (req) => {
           market_cap: detail.market_cap ?? row.market_cap ?? null,
           description_en: detail.description ?? null,
           entity_data: {
-            ceo: null,
-            founded: null,
+            ceo: null, founded: null,
             headquarters: detail.address
               ? [detail.address.city, detail.address.state, detail.address.country].filter(Boolean).join(", ")
               : null,
             employees: detail.total_employees ?? null,
             website: detail.homepage_url ?? null,
-            competitors: [],
-            related_tickers: [],
-            tags: [],
+            competitors: [], related_tickers: [], tags: [],
           },
           enriched_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -81,11 +111,7 @@ Deno.serve(async (req) => {
           .from("seo_tickers")
           .upsert(upsertPayload, { onConflict: "ticker" });
 
-        if (upsertError) {
-          errors++;
-        } else {
-          processed++;
-        }
+        if (upsertError) { errors++; } else { processed++; }
         await new Promise((resolve) => setTimeout(resolve, 85));
       } catch (err) {
         errors++;
@@ -93,10 +119,10 @@ Deno.serve(async (req) => {
     }
 
     await logRun(seo, "ticker-enrichment-agent", "success", {
-      processed, errors, remaining: unenriched.length - batch.length,
+      processed, errors, remaining: orderedUnenriched.length - batch.length,
     });
 
-    return jsonResponse({ status: "success", processed, errors, remaining: unenriched.length - batch.length });
+    return jsonResponse({ status: "success", processed, errors, remaining: orderedUnenriched.length - batch.length });
 
   } catch (err) {
     return errorResponse(err instanceof Error ? err.message : "Unknown error");

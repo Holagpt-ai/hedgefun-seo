@@ -81,7 +81,7 @@ Headquarters: ${entity.headquarters ?? "Unknown"}
 Employees: ${entity.employees ?? "Unknown"}
 Website: ${entity.website ?? "Unknown"}
 Competitors: ${(entity.competitors ?? []).join(", ") || "Unknown"}
-Description: ${ticker.description_en ?? "No description available"}
+Description: ${(ticker.description_en ?? "No description available").slice(0, 1000)}
 
 Return ONLY a JSON object with exactly this field, no preamble, no markdown:
 {
@@ -106,7 +106,10 @@ async function callClaude(prompt: string): Promise<any> {
     }),
   });
 
-  if (!res.ok) throw new Error(`Claude API error: ${res.status}`);
+  if (!res.ok) {
+    const errorBody = await res.text();
+    throw new Error(`Claude API error: ${res.status} - ${errorBody}`);
+  }
 
   const data = await res.json();
   const text = data.content?.[0]?.text ?? "";

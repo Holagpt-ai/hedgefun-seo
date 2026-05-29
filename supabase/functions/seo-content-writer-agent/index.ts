@@ -1,13 +1,12 @@
 import { createSeoClient, logRun, jsonResponse, errorResponse } from "../_shared/base.ts";
 
-const BATCH_SIZE = 50;
+const BATCH_SIZE = 20;
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 
 Deno.serve(async (req) => {
   try {
     const seo = createSeoClient();
 
-    // Fetch tickers that have raw Polygon description but no SEO-optimized content yet
     const { data: tickers, error: fetchError } = await seo
       .from("seo_tickers")
       .select("id, ticker, company_name, description_en, sector, industry, exchange")
@@ -51,7 +50,7 @@ Deno.serve(async (req) => {
           processed++;
         }
 
-        await delay(500);
+        await delay(200);
 
       } catch (err) {
         errors++;
@@ -80,9 +79,9 @@ Raw Description: ${ticker.description_en ?? "No description available"}
 
 Return ONLY a JSON object with exactly these fields, no preamble, no markdown:
 {
-  "description_en": "A 150-200 word SEO-optimized description of the company written for investors. Include the ticker symbol, company name, sector, and what the company does. Natural, informative tone.",
-  "meta_title_en": "A meta title under 60 characters. Format: Company Name (TICKER) Stock Price & Analysis | HedgeFun",
-  "meta_description_en": "A meta description under 155 characters that includes the ticker, company name, and a call to action."
+  "description_en": "150-200 word SEO-optimized description for investors.",
+  "meta_title_en": "Under 60 chars. Format: Company Name (TICKER) Stock Price & Analysis | HedgeFun",
+  "meta_description_en": "Under 155 chars with ticker, company name, and a call to action."
 }`;
 }
 
