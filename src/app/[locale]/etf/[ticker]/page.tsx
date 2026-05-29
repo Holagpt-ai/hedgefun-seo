@@ -15,7 +15,7 @@ export async function generateStaticParams() {
     .from("seo_tickers")
     .select("ticker")
     .eq("type", "etf")
-    .limit(500);
+    .limit(5000);
   return (data ?? []).map((row) => ({ ticker: row.ticker }));
 }
 
@@ -28,6 +28,13 @@ async function getTicker(ticker: string): Promise<TickerRow | null> {
     .eq("type", "etf")
     .maybeSingle();
   return data as TickerRow | null;
+}
+
+function formatMarketCap(value: number): string {
+  if (value >= 1e12) return `$${(value / 1e12).toFixed(1)}T`;
+  if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
+  if (value >= 1e6) return `$${(value / 1e6).toFixed(1)}M`;
+  return value.toLocaleString();
 }
 
 export async function generateMetadata({
@@ -84,6 +91,11 @@ export default async function EtfPage({
 
   const name = data.company_name ?? ticker;
   const liveUrl = `${BASE_URL}/etf/${ticker}`;
+
+  const ed = (data.entity_data as Record<string, unknown>) ?? {};
+  const entityWebsite = (ed.website as string | null) ?? null;
+  const entityHeadquarters = (ed.headquarters as string | null) ?? null;
+  const entityEmployees = (ed.employees as number | null) ?? null;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -142,6 +154,69 @@ export default async function EtfPage({
         >
           {isEs ? `Ver datos en vivo del ETF ${ticker} →` : `View live ${ticker} ETF data →`}
         </a>
+
+        <section className="mt-8">
+            <h2 className="text-sm font-medium text-zinc-500 uppercase tracking-wide mb-3">
+              {isEs ? "Datos clave" : "Key Facts"}
+            </h2>
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 border border-zinc-200 rounded-lg p-4 sm:p-5">
+              {data.exchange && (
+                <div>
+                  <dt className="text-xs text-zinc-500 mb-0.5">{isEs ? "Bolsa" : "Exchange"}</dt>
+                  <dd className="text-sm font-medium text-slate-900">{data.exchange}</dd>
+                </div>
+              )}
+              <div>
+                <dt className="text-xs text-zinc-500 mb-0.5">{isEs ? "Tipo" : "Type"}</dt>
+                <dd className="text-sm font-medium text-slate-900">ETF</dd>
+              </div>
+              {data.sector && (
+                <div>
+                  <dt className="text-xs text-zinc-500 mb-0.5">{isEs ? "Sector" : "Sector"}</dt>
+                  <dd className="text-sm font-medium text-slate-900">{data.sector}</dd>
+                </div>
+              )}
+              {data.industry && (
+                <div>
+                  <dt className="text-xs text-zinc-500 mb-0.5">{isEs ? "Industria" : "Industry"}</dt>
+                  <dd className="text-sm font-medium text-slate-900">{data.industry}</dd>
+                </div>
+              )}
+              {data.market_cap != null && (
+                <div>
+                  <dt className="text-xs text-zinc-500 mb-0.5">{isEs ? "Cap. de mercado" : "Market Cap"}</dt>
+                  <dd className="text-sm font-medium text-slate-900">{formatMarketCap(data.market_cap)}</dd>
+                </div>
+              )}
+              {entityWebsite && (
+                <div>
+                  <dt className="text-xs text-zinc-500 mb-0.5">{isEs ? "Sitio web" : "Website"}</dt>
+                  <dd className="text-sm font-medium text-slate-900">
+                    <a
+                      href={entityWebsite.startsWith("http") ? entityWebsite : `https://${entityWebsite}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-700 hover:text-emerald-800 underline underline-offset-2"
+                    >
+                      {entityWebsite.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                    </a>
+                  </dd>
+                </div>
+              )}
+              {entityHeadquarters && (
+                <div>
+                  <dt className="text-xs text-zinc-500 mb-0.5">{isEs ? "Sede" : "Headquarters"}</dt>
+                  <dd className="text-sm font-medium text-slate-900">{entityHeadquarters}</dd>
+                </div>
+              )}
+              {entityEmployees != null && (
+                <div>
+                  <dt className="text-xs text-zinc-500 mb-0.5">{isEs ? "Empleados" : "Employees"}</dt>
+                  <dd className="text-sm font-medium text-slate-900">{Number(entityEmployees).toLocaleString()}</dd>
+                </div>
+              )}
+            </dl>
+        </section>
 
         <p className="mt-8 text-xs text-gray-400">
           {isEs
