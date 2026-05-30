@@ -31,6 +31,7 @@ async function getTicker(ticker: string): Promise<TickerRow | null> {
 }
 
 function formatMarketCap(value: number): string {
+  if (value <= 0) return "";
   if (value >= 1e12) return `$${(value / 1e12).toFixed(1)}T`;
   if (value >= 1e9) return `$${(value / 1e9).toFixed(1)}B`;
   if (value >= 1e6) return `$${(value / 1e6).toFixed(1)}M`;
@@ -182,7 +183,7 @@ export default async function EtfPage({
                   <dd className="text-sm font-medium text-slate-900">{data.industry}</dd>
                 </div>
               )}
-              {data.market_cap != null && (
+              {data.market_cap != null && data.market_cap > 0 && (
                 <div>
                   <dt className="text-xs text-zinc-500 mb-0.5">{isEs ? "Cap. de mercado" : "Market Cap"}</dt>
                   <dd className="text-sm font-medium text-slate-900">{formatMarketCap(data.market_cap)}</dd>
